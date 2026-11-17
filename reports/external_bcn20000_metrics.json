@@ -1,0 +1,15 @@
+{
+    "dataset": "BCN20000 external test",
+    "total_images": 16702,
+    "threshold": 0.4091505706310272,
+    "accuracy": 0.6688420548437313,
+    "precision": 0.7425210572175428,
+    "sensitivity": 0.5763724495547289,
+    "specificity": 0.7735921338270975,
+    "f1_score": 0.6489814050898014,
+    "roc_auc": 0.741216629030347,
+    "true_negative": 6058,
+    "false_positive": 1773,
+    "false_negative": 3758,
+    "true_positive": 5113
+}

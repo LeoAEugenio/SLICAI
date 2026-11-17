@@ -1,0 +1,11 @@
+{
+    "dataset": "ISIC 2016 segmentation test",
+    "total_images": 135,
+    "image_size": 256,
+    "threshold": 0.5,
+    "mean_dice": 0.8548568762838841,
+    "mean_iou": 0.7667798958304856,
+    "dice_standard_deviation": 0.14120880345822187,
+    "iou_standard_deviation": 0.16842168727824483,
+    "best_validation_dice": 0.8685582964508621
+}

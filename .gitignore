@@ -1,0 +1,25 @@
+# Configurações locais
+.env
+.env.*
+!.env.example
+.venv/
+
+# Arquivos gerados pelo Python
+__pycache__/
+*.pyc
+
+# Datasets e análises feitas pela aplicação
+data/
+storage/
+notebooks/
+
+# Checkpoints: manter apenas os modelos usados pela aplicação
+models/*.pth
+!models/classifier_efficientnet_b0_selected.pth
+!models/segmenter_unet_isic2016.pth
+
+# Resultados por imagem e testes rápidos
+reports/*_predictions.csv
+reports/*smoke*
+reports/figures/segmentation_data_samples.*
+reports/figures/segmentation_test_examples.*

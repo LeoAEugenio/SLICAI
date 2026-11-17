@@ -1,0 +1,15 @@
+{
+    "dataset": "HAM10000 internal test",
+    "total_images": 1502,
+    "threshold": 0.4091505706310272,
+    "accuracy": 0.7876165113182424,
+    "precision": 0.4651639344262295,
+    "sensitivity": 0.7964912280701755,
+    "specificity": 0.7855382087099425,
+    "f1_score": 0.5873221216041398,
+    "roc_auc": 0.8794360593348614,
+    "true_negative": 956,
+    "false_positive": 261,
+    "false_negative": 58,
+    "true_positive": 227
+}

@@ -1,0 +1,12 @@
+{
+  "dataset": "ISIC 2016 official Task 1 test",
+  "images_evaluated": 379,
+  "mean_dice": 0.8525182890821258,
+  "mean_iou": 0.7657423225135633,
+  "model_checkpoint": "C:\\SLICAI\\models\\segmenter_unet_isic2016.pth",
+  "image_size": 256,
+  "mask_threshold": 0.5,
+  "metric_aggregation": "arithmetic mean of per-image scores",
+  "metric_smoothing": 1.0,
+  "device": "cpu"
+}

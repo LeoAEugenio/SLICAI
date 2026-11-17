@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLICAI | Dermoscopic Image Analysis</title>
+  <style>
+    :root {
+      --primary: #0d5c63;
+      --primary-dark: #083b40;
+      --accent: #15a6a6;
+      --background: #f4f8f8;
+      --surface: #ffffff;
+      --text: #183336;
+      --muted: #60787b;
+      --border: #d9e6e6;
+      --warning: #a94024;
+      --warning-bg: #fff1ed;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(120deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 30px 20px;
+    }
+
+    .header-content,
+    main {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: #ffffff24;
+      border: 1px solid #ffffff44;
+      border-radius: 12px;
+      font-size: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #d5eeee;
+    }
+
+    main {
+      padding: 32px 20px 48px;
+    }
+
+    .card {
+      padding: 28px;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 22px #1436380c;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+
+    .description {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .drop-zone {
+      margin: 24px 0 18px;
+      padding: 34px 20px;
+      text-align: center;
+      border: 2px dashed #8abbbc;
+      border-radius: 14px;
+      background: #f5fdfd;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragging {
+      border-color: var(--accent);
+      background: #eaffff;
+    }
+
+    .drop-icon {
+      font-size: 36px;
+    }
+
+    .drop-zone p {
+      margin: 10px 0 4px;
+      font-weight: bold;
+    }
+
+    .drop-zone small {
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .selected-file {
+      min-height: 24px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .preview {
+      display: none;
+      max-width: 290px;
+      max-height: 260px;
+      margin: 20px auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .error {
+      color: #a62816;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 22px 0;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdfd;
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .result-warning {
+      padding: 16px;
+      border: 1px solid #ffc9bc;
+      border-radius: 12px;
+      background: var(--warning-bg);
+      color: var(--warning);
+      font-weight: bold;
+    }
+
+    .result-normal {
+      padding: 16px;
+      border: 1px solid #b4dfd2;
+      border-radius: 12px;
+      background: #ecfbf6;
+      color: #17624e;
+      font-weight: bold;
+    }
+
+    .images {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .image-panel {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .image-panel h3 {
+      margin: 0;
+      padding: 13px 15px;
+      background: #f8fbfb;
+      font-size: 16px;
+    }
+
+    .image-panel img {
+      display: block;
+      width: 100%;
+      background: black;
+    }
+
+    .notice {
+      margin: 22px 0 0;
+      padding: 14px;
+      border-left: 4px solid var(--primary);
+      background: #f1fafa;
+      color: #315558;
+      line-height: 1.5;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .history-header h2 {
+      margin: 0;
+    }
+
+    .secondary-button {
+      width: auto;
+      padding: 10px 16px;
+      border: 1px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      font-size: 14px;
+    }
+
+    .secondary-button:hover:not(:disabled) {
+      background: #effafa;
+    }
+
+    .history-status {
+      min-height: 22px;
+      margin: 14px 0;
+      color: var(--muted);
+    }
+
+    .history-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .history-item {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdfd;
+    }
+
+    .history-item summary {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 14px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .history-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .history-item summary::after {
+      content: "View details";
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .history-item[open] summary::after {
+      content: "Hide details";
+    }
+
+    .history-thumbnail {
+      width: 82px;
+      height: 68px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #edf4f4;
+      object-fit: cover;
+    }
+
+    .history-main {
+      min-width: 0;
+    }
+
+    .history-name {
+      overflow: hidden;
+      margin: 0 0 8px;
+      color: var(--text);
+      font-weight: bold;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .history-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .history-badge.benign {
+      background: #e5f7f1;
+      color: #17624e;
+    }
+
+    .history-badge.malignant {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .history-details {
+      padding: 0 14px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .history-details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .history-detail {
+      padding: 12px;
+      border-radius: 9px;
+      background: white;
+    }
+
+    .history-detail span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .history-detail strong {
+      display: block;
+      overflow-wrap: anywhere;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .history-images {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 14px;
+    }
+
+    .history-images figure {
+      overflow: hidden;
+      margin: 0;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: white;
+    }
+
+    .history-images figcaption {
+      padding: 10px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .history-images img {
+      display: block;
+      width: 100%;
+      background: black;
+    }
+
+    .empty-history {
+      padding: 28px 16px;
+      border: 1px dashed #a9c9ca;
+      border-radius: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .result-grid,
+      .images,
+      .history-details-grid,
+      .history-images {
+        grid-template-columns: 1fr;
+      }
+
+      .history-item summary {
+        grid-template-columns: 70px minmax(0, 1fr);
+      }
+
+      .history-item summary::after {
+        grid-column: 2;
+      }
+
+      .history-thumbnail {
+        width: 70px;
+        height: 64px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-mark">⌕</div>
+        <div>
+          <h1>SLICAI</h1>
+          <p class="subtitle">Experimental dermoscopic image analysis</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Upload image</h2>
+      <p class="description">
+        Upload a JPG, JPEG, or PNG image to generate a preliminary
+        classification and segment the region identified by the model.
+      </p>
+
+      <form id="analysis-form">
+        <label class="drop-zone" id="drop-zone" for="image-input">
+          <div class="drop-icon">⇧</div>
+          <p>Select or drag an image</p>
+          <small>Accepted formats: JPG, JPEG, and PNG — maximum size: 10 MB</small>
+        </label>
+
+        <input id="image-input" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+        <div class="selected-file" id="selected-file">
+          No image selected.
+        </div>
+
+        <img id="preview" class="preview" alt="Preview of the selected image">
+
+        <button id="analyze-button" type="submit" disabled>
+          Run analysis
+        </button>
+      </form>
+
+      <div class="status" id="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="results" hidden>
+      <h2>Analysis result</h2>
+
+      <div id="classification-box"></div>
+
+      <div class="result-grid">
+        <div class="metric">
+          <span class="metric-label">Malignancy probability</span>
+          <span class="metric-value" id="probability">-</span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-label">Classification threshold</span>
+          <span class="metric-value" id="threshold">-</span>
+        </div>
+
+        <div class="metric">
+          <span class="metric-label">Analysis identifier</span>
+          <span class="metric-value" id="analysis-id">-</span>
+        </div>
+      </div>
+
+      <div class="images">
+        <div class="image-panel">
+          <h3>Predicted mask</h3>
+          <img id="mask-image" alt="Predicted lesion mask">
+        </div>
+
+        <div class="image-panel">
+          <h3>Image and predicted contour</h3>
+          <img id="analysis-image" alt="Visual analysis result">
+        </div>
+      </div>
+
+      <p class="notice" id="medical-notice"></p>
+    </section>
+
+    <section class="card" id="history-section">
+      <div class="history-header">
+        <h2>Analysis history</h2>
+        <button class="secondary-button" id="refresh-history" type="button">
+          Refresh
+        </button>
+      </div>
+
+      <p class="description">
+        Review analyzed images and results stored in the system.
+      </p>
+
+      <div class="history-status" id="history-status" aria-live="polite"></div>
+      <div class="history-list" id="history-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("analysis-form");
+    const input = document.getElementById("image-input");
+    const dropZone = document.getElementById("drop-zone");
+    const selectedFileText = document.getElementById("selected-file");
+    const preview = document.getElementById("preview");
+    const button = document.getElementById("analyze-button");
+    const status = document.getElementById("status");
+    const results = document.getElementById("results");
+    const historyList = document.getElementById("history-list");
+    const historyStatus = document.getElementById("history-status");
+    const refreshHistoryButton = document.getElementById("refresh-history");
+
+    let selectedFile = null;
+
+    function showStatus(message, isError = false) {
+      status.textContent = message;
+      status.className = isError ? "status error" : "status";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function safeRelativeUrl(value) {
+      return typeof value === "string" && value.startsWith("/")
+        ? escapeHtml(value)
+        : "";
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "Date not available";
+      }
+
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? "Date not available"
+        : date.toLocaleString("en-US", {
+            dateStyle: "short",
+            timeStyle: "short"
+          });
+    }
+
+    function renderHistory(analyses) {
+      if (!analyses.length) {
+        historyList.innerHTML = `
+          <div class="empty-history">
+            No analyses have been recorded yet.
+          </div>
+        `;
+        return;
+      }
+
+      historyList.innerHTML = analyses.map((analysis) => {
+        const isMalignant = analysis.classification_result === "malignant";
+        const classification = isMalignant
+          ? "Possible malignant pattern"
+          : "Possible benign pattern";
+        const probability = `${(Number(analysis.malignant_probability) * 100).toFixed(2)}%`;
+        const threshold = `${(Number(analysis.classification_threshold) * 100).toFixed(2)}%`;
+        const uploadedUrl = safeRelativeUrl(analysis.uploaded_image_url);
+        const maskUrl = safeRelativeUrl(analysis.mask_url);
+        const figureUrl = safeRelativeUrl(analysis.analysis_figure_url);
+
+        return `
+          <details class="history-item">
+            <summary>
+              <img
+                class="history-thumbnail"
+                src="${uploadedUrl}"
+                alt="Image ${escapeHtml(analysis.original_file_name)}"
+                loading="lazy"
+              >
+              <div class="history-main">
+                <p class="history-name">${escapeHtml(analysis.original_file_name)}</p>
+                <div class="history-meta">
+                  <span class="history-badge ${isMalignant ? "malignant" : "benign"}">
+                    ${classification}
+                  </span>
+                  <span>Probability: ${probability}</span>
+                  <span>${escapeHtml(formatDate(analysis.created_at))}</span>
+                </div>
+              </div>
+            </summary>
+
+            <div class="history-details">
+              <div class="history-details-grid">
+                <div class="history-detail">
+                  <span>Identifier</span>
+                  <strong>${escapeHtml(analysis.analysis_id)}</strong>
+                </div>
+                <div class="history-detail">
+                  <span>Classification threshold</span>
+                  <strong>${threshold}</strong>
+                </div>
+                <div class="history-detail">
+                  <span>Segmentation threshold</span>
+                  <strong>${Number(analysis.segmentation_threshold).toFixed(2)}</strong>
+                </div>
+                <div class="history-detail">
+                  <span>Classification model</span>
+                  <strong>${escapeHtml(analysis.classifier_model)}</strong>
+                </div>
+                <div class="history-detail">
+                  <span>Segmentation model</span>
+                  <strong>${escapeHtml(analysis.segmenter_model)}</strong>
+                </div>
+                <div class="history-detail">
+                  <span>Date and time</span>
+                  <strong>${escapeHtml(formatDate(analysis.created_at))}</strong>
+                </div>
+              </div>
+
+              <div class="history-images">
+                <figure>
+                  <figcaption>Predicted mask</figcaption>
+                  <img src="${maskUrl}" alt="Predicted mask" loading="lazy">
+                </figure>
+                <figure>
+                  <figcaption>Image and predicted contour</figcaption>
+                  <img src="${figureUrl}" alt="Visual analysis result" loading="lazy">
+                </figure>
+              </div>
+            </div>
+          </details>
+        `;
+      }).join("");
+    }
+
+    async function loadHistory(showLoading = true) {
+      if (showLoading) {
+        historyStatus.textContent = "Loading analysis history...";
+      }
+
+      refreshHistoryButton.disabled = true;
+
+      try {
+        const response = await fetch("/api/analyses?limit=50");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "The analysis history could not be loaded.");
+        }
+
+        renderHistory(Array.isArray(data.analyses) ? data.analyses : []);
+        historyStatus.textContent = data.total === 1
+          ? "1 analysis recorded."
+          : `${data.total || 0} analyses recorded.`;
+        historyStatus.className = "history-status";
+      } catch (error) {
+        historyList.innerHTML = "";
+        historyStatus.textContent = error.message;
+        historyStatus.className = "history-status error";
+      } finally {
+        refreshHistoryButton.disabled = false;
+      }
+    }
+
+    function selectFile(file) {
+      if (!file) {
+        return;
+      }
+
+      const validExtensions = [".jpg", ".jpeg", ".png"];
+      const extension = "." + file.name.split(".").pop().toLowerCase();
+
+      if (!validExtensions.includes(extension)) {
+        showStatus("Upload a JPG, JPEG, or PNG image.", true);
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showStatus("The image must not exceed 10 MB.", true);
+        return;
+      }
+
+      selectedFile = file;
+      selectedFileText.textContent = `Selected image: ${file.name}`;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = "block";
+      button.disabled = false;
+      showStatus("");
+    }
+
+    input.addEventListener("change", () => selectFile(input.files[0]));
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.add("dragging");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("dragging");
+      });
+    });
+
+    dropZone.addEventListener("drop", (event) => {
+      selectFile(event.dataTransfer.files[0]);
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!selectedFile) {
+        return;
+      }
+
+      button.disabled = true;
+      results.hidden = true;
+      showStatus("Analyzing image. This may take a few seconds...");
+
+      try {
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "The image could not be analyzed.");
+        }
+
+        const isMalignant = data.classification_result === "malignant";
+        const resultText = isMalignant
+          ? "Preliminary classification: possible malignant pattern"
+          : "Preliminary classification: possible benign pattern";
+
+        const classificationBox = document.getElementById("classification-box");
+        classificationBox.textContent = resultText;
+        classificationBox.className = isMalignant
+          ? "result-warning"
+          : "result-normal";
+
+        document.getElementById("probability").textContent =
+          `${(data.malignant_probability * 100).toFixed(2)}%`;
+
+          document.getElementById("threshold").textContent =
+          `${(Number(data.classification_threshold) * 100).toFixed(2)}%`;
+
+        document.getElementById("analysis-id").textContent =
+          data.analysis_id.slice(0, 10);
+
+        document.getElementById("mask-image").src =
+          `${data.mask_url}?v=${data.analysis_id}`;
+
+        document.getElementById("analysis-image").src =
+          `${data.analysis_figure_url}?v=${data.analysis_id}`;
+
+        document.getElementById("medical-notice").textContent =
+          data.medical_notice;
+
+        results.hidden = false;
+        results.scrollIntoView({ behavior: "smooth", block: "start" });
+        showStatus("Analysis completed.");
+        await loadHistory(false);
+      } catch (error) {
+        showStatus(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    refreshHistoryButton.addEventListener("click", () => loadHistory());
+    loadHistory();
+  </script>
+</body>
+</html>
